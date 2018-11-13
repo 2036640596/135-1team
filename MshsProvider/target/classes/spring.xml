@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+        xmlns="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:p="http://www.springframework.org/schema/p"
+        xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+        xmlns:context="http://www.springframework.org/schema/context"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+    http://code.alibabatech.com/schema/dubbo
+    http://code.alibabatech.com/schema/dubbo/dubbo.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd"
+        default-autowire="byName">
+
+    <dubbo:application name="dubbox-entity-provider" />
+    <dubbo:registry address="zookeeper://172.16.16.156:2181" />
+    <dubbo:protocol name="dubbo" serialization="kryo" />
+
+    <bean name="userService" class="com.szxs.service.impl.UserServiceImpl" />
+    <dubbo:service interface="com.szxs.service.UserService" ref="userService" protocol="dubbo" />
+    <context:component-scan base-package="com.szxs.service"/>
+    <!--配置数据源 -->
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource">
+        <property name="driverClassName" value="oracle.jdbc.driver.OracleDriver"/>
+        <property name="url" value="jdbc:oracle:thin:@localhost:1522:orcl2"/>
+        <property name="username" value="mshs"/>
+        <property name="password" value="mshspwd"/>
+
+    </bean>
+    <bean name="sqlSession" class="org.mybatis.spring.SqlSessionFactoryBean" >
+        <property name="dataSource" ref="dataSource" />
+        <property name="typeAliasesPackage" value="com.szxs.entity" />
+        <property name="mapperLocations" value="classpath:xml/*.xml" />
+    </bean>
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.szxs.dao" />
+        <property name="sqlSessionFactoryBeanName" value="sqlSession" />
+    </bean>
+
+</beans>
